@@ -51,6 +51,4 @@ func (b *Broker) Start(binder func(s Server, r *mux.Router)) {
 	if err := http.ListenAndServe(b.config.Port, b.router); err != nil {
 		log.Fatal(err)
 	}
-
-	}
 }
