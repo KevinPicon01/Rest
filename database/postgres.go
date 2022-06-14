@@ -21,13 +21,13 @@ func NewPostgresRepository(url string) (*PostgresRepository, error) {
 }
 
 func (repo *PostgresRepository) InsertUser(ctx context.Context, user *models.User) error {
-	_, err := repo.db.ExecContext(ctx, "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)", user.Name, user.Email, user.Password)
+	_, err := repo.db.ExecContext(ctx, "INSERT INTO users ( id, name, email, password) VALUES ($1, $2, $3, $4)", user.Id, user.Name, user.Email, user.Password)
 	return err
 }
 
 func (repo *PostgresRepository) GetUserById(ctx context.Context, id string) (*models.User, error) {
 	var user models.User
-	err := repo.db.QueryRowContext(ctx, "SELECT name, email FROM users WHERE id = $1", id).Scan(&user.Name, &user.Email)
+	err := repo.db.QueryRowContext(ctx, "SELECT id, name, email FROM users WHERE id = $1", id).Scan(&user.Id, &user.Name, &user.Email)
 	if err != nil {
 		return nil, err
 	}

@@ -16,6 +16,7 @@ type SignUpRequest struct {
 }
 
 type SignUpResponse struct {
+	Id    string `json:"id"`
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
@@ -45,6 +46,7 @@ func SignUpHandler(s server.Server) http.HandlerFunc {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(SignUpResponse{
+			Id:    user.Id,
 			Name:  user.Name,
 			Email: user.Email,
 		})
