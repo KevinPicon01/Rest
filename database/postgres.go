@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	_ "github.com/lib/pq"
 	"kevinPicon/go/rest-ws/models"
 	"log"
 )
@@ -24,7 +25,7 @@ func (repo *PostgresRepository) InsertUser(ctx context.Context, user *models.Use
 	return err
 }
 
-func (repo *PostgresRepository) GetUserById(ctx context.Context, id int64) (*models.User, error) {
+func (repo *PostgresRepository) GetUserById(ctx context.Context, id string) (*models.User, error) {
 	var user models.User
 	err := repo.db.QueryRowContext(ctx, "SELECT name, email FROM users WHERE id = $1", id).Scan(&user.Name, &user.Email)
 	if err != nil {
