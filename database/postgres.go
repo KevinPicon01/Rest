@@ -43,17 +43,23 @@ func (repo *PostgresRepository) GetUserById(ctx context.Context, id string) (*mo
 }
 func (repo *PostgresRepository) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	var user models.User
-	err := repo.db.QueryRowContext(ctx, "SELECT id, name, email, password FROM users WHERE email = $1", email).Scan(&user.Id, &user.Name, &user.Email)
-	if err != nil {
-		return nil, err
-	}
+	rows, err := repo.db.QueryContext(ctx, "SELECT id, password, name, email FROM users WHERE email = $1",
+		email)
 
 	defer func() {
-		err = repo.db.Close()
+		err = rows.Close()
 		if err != nil {
 			log.Fatal(err)
 		}
 	}()
+	for rows.Next() {
+		if err = rows.Scan(&user.Id, &user.Password, &user.Name, &user.Email); err != nil {
+			return nil, err
+		}
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
 
 	return &user, nil
 }
