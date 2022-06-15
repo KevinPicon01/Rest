@@ -25,8 +25,8 @@ func (repo *PostgresRepository) InsertUser(ctx context.Context, user *models.Use
 	return err
 }
 
-func (repo *PostgresRepository) GetUserById(ctx context.Context, id string) (*models.User, error) {
-	var user models.User
+func (repo *PostgresRepository) GetUserById(ctx context.Context, id string) (*models.UserPayload, error) {
+	var user models.UserPayload
 	err := repo.db.QueryRowContext(ctx, "SELECT id, name, email FROM users WHERE id = $1", id).Scan(&user.Id, &user.Name, &user.Email)
 	if err != nil {
 		return nil, err

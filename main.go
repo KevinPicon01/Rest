@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	"kevinPicon/go/rest-ws/Middleware"
 	"kevinPicon/go/rest-ws/handlers"
 	"kevinPicon/go/rest-ws/server"
 	"log"
@@ -31,9 +32,12 @@ func main() {
 	serv.Start(BindRouters)
 }
 func BindRouters(s server.Server, r *mux.Router) {
+	r.Use(Middleware.CheckAuthMiddleware(s))
+
 	r.HandleFunc("/", handlers.HomeHandler(s)).Methods("GET")
 	r.HandleFunc("/signup", handlers.SignUpHandler(s)).Methods("POST")
 	r.HandleFunc("/login", handlers.LoginHandler(s)).Methods("POST")
+	r.HandleFunc("/me", handlers.MeHandler(s)).Methods("GET")
 	/*r.HandleFunc("/users", UsersHandler(s)).Methods("GET")
 	r.HandleFunc("/users/{id}", UserHandler(s)).Methods("GET")
 	r.HandleFunc("/users", CreateUserHandler(s)).Methods("POST")
