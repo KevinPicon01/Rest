@@ -93,3 +93,74 @@ func GetPostByIdHandler(s server.Server) http.HandlerFunc {
 		}
 	}
 }
+
+func UpdatePostHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tokenString := strings.TrimSpace(r.Header.Get("Authorization"))
+		tokenString = strings.Replace(tokenString, "Bearer ", "", -1)
+		token, err := jwt.ParseWithClaims(tokenString, &models.AppClaims{}, func(token *jwt.Token) (interface{}, error) {
+			return []byte(s.Config().JWTSecret), nil
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		if claims, ok := token.Claims.(*models.AppClaims); ok && token.Valid {
+			var request = models.Post{}
+			params := mux.Vars(r)
+			err := json.NewDecoder(r.Body).Decode(&request)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			request = models.Post{
+				Id:       params["id"],
+				Title:    request.Title,
+				Content:  request.Content,
+				AuthorId: claims.UserId,
+			}
+			err = repository.UpdatePost(r.Context(), &request)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+	}
+}
+func DeletePostHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tokenString := strings.TrimSpace(r.Header.Get("Authorization"))
+		tokenString = strings.Replace(tokenString, "Bearer ", "", -1)
+		token, err := jwt.ParseWithClaims(tokenString, &models.AppClaims{}, func(token *jwt.Token) (interface{}, error) {
+			return []byte(s.Config().JWTSecret), nil
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		if claims, ok := token.Claims.(*models.AppClaims); ok && token.Valid {
+			params := mux.Vars(r)
+			var request = models.Post{}
+			request = models.Post{
+				Id:       params["id"],
+				AuthorId: claims.UserId,
+			}
+			err = repository.DeletePost(r.Context(), &request)
+			if err != nil {
+				http.Error(w, err.Error()+"h", http.StatusInternalServerError)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+	}
+}

@@ -65,6 +65,19 @@ func (repo *PostgresRepository) GetPostById(ctx context.Context, postId string) 
 
 	return &post, nil
 }
+
+func (repo *PostgresRepository) UpdatePost(ctx context.Context, post *models.Post) error {
+	repo.db.Ping()
+	_, err := repo.db.ExecContext(ctx, "UPDATE posts SET title = $1, post_content = $2 WHERE id = $3 and user_id = $4",
+		post.Title, post.Content, post.Id, post.AuthorId)
+	return err
+}
+
+func (repo *PostgresRepository) DeletePost(ctx context.Context, post *models.Post) error {
+	_, err := repo.db.ExecContext(ctx, "DELETE FROM posts WHERE id = $1 and user_id = $2", post.Id, post.AuthorId)
+	return err
+}
+
 func (repo *PostgresRepository) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	var user models.User
 	rows, err := repo.db.QueryContext(ctx, "SELECT id, password, name, email FROM users WHERE email = $1",
