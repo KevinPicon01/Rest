@@ -38,6 +38,8 @@ func BindRouters(s server.Server, r *mux.Router) {
 	r.HandleFunc("/signup", handlers.SignUpHandler(s)).Methods("POST")
 	r.HandleFunc("/login", handlers.LoginHandler(s)).Methods("POST")
 	r.HandleFunc("/me", handlers.MeHandler(s)).Methods("GET")
+	r.HandleFunc("/CreatePost", handlers.InsertPostHandler(s)).Methods("POST")
+	r.HandleFunc("/posts/{id}", handlers.GetPostByIdHandler(s)).Methods("GET")
 	/*r.HandleFunc("/users", UsersHandler(s)).Methods("GET")
 	r.HandleFunc("/users/{id}", UserHandler(s)).Methods("GET")
 	r.HandleFunc("/users", CreateUserHandler(s)).Methods("POST")
