@@ -101,6 +101,31 @@ func (repo *PostgresRepository) GetUserByEmail(ctx context.Context, email string
 	return &user, nil
 }
 
+func (repo *PostgresRepository) ListPost(ctx context.Context, page uint64) ([]*models.Post, error) {
+	rows, err := repo.db.QueryContext(ctx, "SELECT id, title, post_content, user_id, created_at FROM posts LIMIT $1 OFFSET $2", 3, page*3)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = rows.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+	var posts []*models.Post
+	for rows.Next() {
+		var post models.Post
+		if err = rows.Scan(&post.Id, &post.Title, &post.Content, &post.AuthorId, &post.CreateAt); err != nil {
+			return nil, err
+		}
+		posts = append(posts, &post)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return posts, nil
+}
+
 func (repo *PostgresRepository) Close() error {
 	return repo.db.Close()
 }

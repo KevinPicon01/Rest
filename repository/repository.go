@@ -13,6 +13,7 @@ type UserRepository interface {
 	GetPostById(ctx context.Context, id string) (*models.Post, error)
 	UpdatePost(ctx context.Context, post *models.Post) error
 	DeletePost(ctx context.Context, post *models.Post) error
+	ListPost(ctx context.Context, page uint64) ([]*models.Post, error)
 	Close() error
 }
 
@@ -20,6 +21,9 @@ var impl UserRepository
 
 func SetRepository(repo UserRepository) {
 	impl = repo
+}
+func ListPost(ctx context.Context, page uint64) ([]*models.Post, error) {
+	return impl.ListPost(ctx, page)
 }
 
 func InsertUser(ctx context.Context, user *models.User) error {

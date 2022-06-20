@@ -10,6 +10,7 @@ import (
 	"kevinPicon/go/rest-ws/repository"
 	"kevinPicon/go/rest-ws/server"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -161,6 +162,42 @@ func DeletePostHandler(s server.Server) http.HandlerFunc {
 		} else {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
+		}
+	}
+}
+func GetPostsHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		pageString := r.URL.Query().Get("page")
+		var page uint64
+		var err error
+		if pageString == "" {
+			page = 1
+		} else {
+			page, err = strconv.ParseUint(pageString, 10, 64)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+		posts, err := repository.ListPost(r.Context(), page)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		var postsResponse = []models.Post{}
+		for _, post := range posts {
+			var postResponse = models.Post{
+				Id:       post.Id,
+				Title:    post.Title,
+				Content:  post.Content,
+				CreateAt: post.CreateAt,
+				AuthorId: post.AuthorId,
+			}
+			postsResponse = append(postsResponse, postResponse)
+		}
+		if err := json.NewEncoder(w).Encode(postsResponse); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
 }

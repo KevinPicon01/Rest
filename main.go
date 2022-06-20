@@ -42,9 +42,5 @@ func BindRouters(s server.Server, r *mux.Router) {
 	r.HandleFunc("/posts/{id}", handlers.GetPostByIdHandler(s)).Methods("GET")
 	r.HandleFunc("/posts/{id}", handlers.UpdatePostHandler(s)).Methods("PUT")
 	r.HandleFunc("/posts/{id}", handlers.DeletePostHandler(s)).Methods("DELETE")
-	/*r.HandleFunc("/users", UsersHandler(s)).Methods("GET")
-	r.HandleFunc("/users/{id}", UserHandler(s)).Methods("GET")
-	r.HandleFunc("/users", CreateUserHandler(s)).Methods("POST")
-	r.HandleFunc("/users/{id}", UpdateUserHandler(s)).Methods("PUT")
-	r.HandleFunc("/users/{id}", DeleteUserHandler(s)).Methods("DELETE")*/
+	r.HandleFunc("/posts", handlers.GetPostsHandler(s)).Methods("GET")
 }
