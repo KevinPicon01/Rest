@@ -32,8 +32,9 @@ func main() {
 	serv.Start(BindRouters)
 }
 func BindRouters(s server.Server, r *mux.Router) {
+	//Middleware
 	r.Use(Middleware.CheckAuthMiddleware(s))
-
+	//Routes
 	r.HandleFunc("/", handlers.HomeHandler(s)).Methods("GET")
 	r.HandleFunc("/signup", handlers.SignUpHandler(s)).Methods("POST")
 	r.HandleFunc("/login", handlers.LoginHandler(s)).Methods("POST")
@@ -43,4 +44,7 @@ func BindRouters(s server.Server, r *mux.Router) {
 	r.HandleFunc("/posts/{id}", handlers.UpdatePostHandler(s)).Methods("PUT")
 	r.HandleFunc("/posts/{id}", handlers.DeletePostHandler(s)).Methods("DELETE")
 	r.HandleFunc("/posts", handlers.GetPostsHandler(s)).Methods("GET")
+	//WebSockets
+	r.HandleFunc("/ws", s.Hub().HandleWebSocket)
+
 }
